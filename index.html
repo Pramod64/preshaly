@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>For Preshaly 💗</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --pink:#ff4d88;
+  --red:#ff2e63;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Quicksand',system-ui,sans-serif;
+  min-height:100vh;
+  overflow:hidden;
+  background:linear-gradient(160deg,#fff0f5,#ffd6e7 40%,#ffeef2 70%,#fff);
+  color:#5a2a3a;
+}
+
+.main{
+  padding:calc(20px + env(safe-area-inset-top)) 20px calc(30px + env(safe-area-inset-bottom));
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  position:relative;
+  z-index:10;
+}
+
+.bg-heart{
+  position:absolute;
+  bottom:-40px;
+  font-size:14px;
+  animation:floatUp linear infinite;
+  opacity:.35;
+}
+@keyframes floatUp{to{transform:translateY(-120vh);opacity:0}}
+
+.question{
+  font-family:'Dancing Script',cursive;
+  font-size:clamp(2.3rem,7vw,4rem);
+  margin-bottom:40px;
+}
+
+.buttons{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.btn{
+  min-height:58px;
+  padding:16px 32px;
+  border-radius:999px;
+  font-size:clamp(1.1rem,4vw,1.4rem);
+  font-weight:600;
+  border:none;
+  cursor:pointer;
+}
+#yesBtn{
+  background:linear-gradient(45deg,var(--pink),var(--red));
+  color:white;
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+#noBtn{background:#cfd8e6;color:#34495e}
+
+.celebration{
+  position:fixed;inset:0;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  background:radial-gradient(circle at center,#ffe3ec,#ffd1e3,#fff);
+  overflow:hidden;
+  z-index:5;
+}
+
+/* Slideshow */
+.slideshow{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:none;
+  z-index:8;
+}
+.slide{
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  opacity:0;
+  transform:scale(1.08);
+  transition:opacity 1.8s ease, transform 12s ease;
+}
+.slide.active{
+  opacity:1;
+  transform:scale(1);
+}
+
+.photo-credit{
+  position:absolute;
+  bottom:12px;
+  left:0;right:0;
+  text-align:center;
+  color:rgba(255,255,255,0.7);
+  font-size:0.9rem;
+  z-index:10;
+  pointer-events:none;
+}
+
+/* Music toggle */
+.music-toggle{
+  position:fixed;
+  top:calc(12px + env(safe-area-inset-top));
+  right:16px;
+  padding:10px 14px;
+  border-radius:20px;
+  border:none;
+  background:white;
+  box-shadow:0 5px 15px rgba(0,0,0,.1);
+  font-size:1.1rem;
+  cursor:pointer;
+  display:none;
+  z-index:20;
+}
+
+.big-heart{
+  font-size:110px;
+  animation:beat 1s infinite;
+  margin-bottom:25px;
+}
+@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+
+.floaty{
+  position:absolute;
+  font-size:24px;
+  animation:drift linear infinite;
+}
+@keyframes drift{to{transform:translateY(110vh) rotate(360deg);opacity:0}}
+
+.message{
+  max-width:520px;
+  font-size:clamp(1rem,4vw,1.3rem);
+  line-height:1.6;
+  white-space:pre-line;
+  opacity:0;
+  transform:translateY(20px);
+  transition:opacity 1.2s, transform 1.2s;
+  z-index:15;
+  background:rgba(255,255,255,0.85);
+  padding:2rem;
+  border-radius:24px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.15);
+}
+
+@media (max-width:440px){.buttons{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<audio id="bgMusic" loop preload="auto">
+  <source src="Abhi.mp3" type="audio/mpeg">
+</audio>
+
+<button class="music-toggle" id="musicToggle">🎵</button>
+
+<div class="main" id="mainScreen">
+  <div class="question">Preshaly, will you be my Valentine? 💗</div>
+  <div class="buttons">
+    <button class="btn" id="yesBtn">YES 💖</button>
+    <button class="btn" id="noBtn">NO</button>
+  </div>
+</div>
+
+<!-- Slideshow container -->
+<div class="slideshow" id="slideshow">
+  <!-- Photos added via JS -->
+</div>
+
+<div class="celebration" id="celebration">
+  <div class="big-heart">💞</div>
+  <div class="message" id="finalMsg"></div>
+</div>
+
+<script>
+// Your photos (replace src with real direct image URLs)
+const photos = [
+  "1.JPG", // first photo (mountains, lehenga)
+  "2.JPG", // second (park-like, maroon suit)
+  "3.JPG", // third (hilly view)
+];
+
+let currentSlide = 0;
+const slideDuration = 5500; // ms per photo
+
+/* Floating background hearts */
+for(let i=0;i<30;i++){
+  const h=document.createElement('div');
+  h.className='bg-heart';
+  h.textContent='💗';
+  h.style.left=Math.random()*100+'vw';
+  h.style.animationDuration=(6+Math.random()*6)+'s';
+  document.body.appendChild(h);
+}
+
+/* Playful NO button */
+const noBtn = document.getElementById('noBtn');
+let attempts = 0;
+const excuses = [
+  "Wait... wrong button na Preshaly? 😅",
+  "Pramod's heart is begging you not to click me 🥺",
+  "This button is on vacation in Maldives sorry",
+  "404: NO not found",
+  "Preshaly please... don't break my heart yaar 😭"
+];
+
+function dodge(){
+  if(attempts<3){
+    const x = Math.random()*(window.innerWidth-120);
+    const y = Math.random()*(window.innerHeight-80);
+    noBtn.style.position='fixed';
+    noBtn.style.left=x+'px';
+    noBtn.style.top=y+'px';
+  }else if(attempts<5){
+    noBtn.textContent = excuses[attempts-3];
+  }else{
+    noBtn.style.transform='scale(.3)';
+    setTimeout(()=>noBtn.style.display='none',600);
+  }
+  attempts++;
+}
+noBtn.addEventListener('mouseenter',dodge);
+noBtn.addEventListener('touchstart',dodge);
+
+/* YES → slideshow → message */
+const yesBtn = document.getElementById('yesBtn');
+const mainScreen = document.getElementById('mainScreen');
+const slideshow = document.getElementById('slideshow');
+const celebration = document.getElementById('celebration');
+const finalMsg = document.getElementById('finalMsg');
+const music = document.getElementById('bgMusic');
+const musicToggle = document.getElementById('musicToggle');
+
+function createSlides(){
+  photos.forEach((src, i) => {
+    const div = document.createElement('div');
+    div.className = 'slide';
+    div.style.backgroundImage = `url(${src})`;
+    if(i === 0) div.classList.add('active');
+    slideshow.appendChild(div);
+  });
+}
+
+function nextSlide(){
+  const slides = document.querySelectorAll('.slide');
+  slides[currentSlide].classList.remove('active');
+  currentSlide = (currentSlide + 1) % photos.length;
+  slides[currentSlide].classList.add('active');
+}
+
+yesBtn.addEventListener('click', () => {
+  // User gesture → music can play
+  music.currentTime = 0;
+  music.play().catch(()=>{});
+  musicToggle.style.display = 'block';
+
+  mainScreen.style.display = 'none';
+  slideshow.style.display = 'block';
+
+  createSlides();
+
+  // Start slideshow
+  const interval = setInterval(() => {
+    nextSlide();
+  }, slideDuration);
+
+  // After ~3 cycles or fixed time → go to message
+  setTimeout(() => {
+    clearInterval(interval);
+    slideshow.style.display = 'none';
+    celebration.style.display = 'flex';
+
+    const text = `YESSSSS!!! 🥹💖💖
+Thank you my Preshaly... Pravin is officially the happiest boy in Canberra right now!
+Get ready for too many good morning texts, surprise chocolates, midnight memes,
+forehead kisses, tight hugs, and all my love forever and ever okay? ♡♡
+I love you!`;
+
+    let i = 0;
+    const type = setInterval(() => {
+      finalMsg.style.opacity = 1;
+      finalMsg.style.transform = 'translateY(0)';
+      finalMsg.textContent += text[i];
+      i++;
+      if(i >= text.length) clearInterval(type);
+    }, 30);
+  }, slideDuration * photos.length + 1800); // show all photos + little extra
+});
+
+/* Music toggle */
+musicToggle.onclick = () => {
+  if(music.paused){
+    music.play();
+    musicToggle.textContent = '🎵';
+  } else {
+    music.pause();
+    musicToggle.textContent = '🔇';
+  }
+};
+</script>
+</body>
+</html>
